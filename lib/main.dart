@@ -53,19 +53,20 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      body: Container(
-        width: double.maxFinite,
-        height: double.maxFinite,
-        child: StreamBuilder(
-          stream: _boxBloc.boxObservable,
-          builder: (_, snapshot) {
-            if (snapshot.hasData) {
-              return snapshot.data;
-            } else {
-              return Container();
-            }
-          },
-        ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          StreamBuilder(
+            stream: _boxBloc.boxObservable,
+            builder: (_, snapshot) {
+              if (snapshot.hasData) {
+                return snapshot.data;
+              } else {
+                return Container();
+              }
+            },
+          ),
+        ],
       ),
       floatingActionButton: StreamBuilder<Object>(
         stream: _boxBloc.gameObservable,
@@ -76,7 +77,7 @@ class _HomeState extends State<Home> {
               child: snapshot.data ? Icon(Icons.pause) : Icon(Icons.play_arrow),
             );
           } else {
-            return null;
+            return Container(width: 0.0, height: 0.0);
           }
         },
       ),
