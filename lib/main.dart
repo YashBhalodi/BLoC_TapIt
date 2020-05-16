@@ -25,7 +25,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  BoxBloc _boxBloc = BoxBloc(x: 0.0, y: 0.0);
+  int _totalDuration = 60;
+  BoxBloc _boxBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _boxBloc = BoxBloc(x: 0.0, y: 0.0, totalSeconds: _totalDuration);
+  }
 
   @override
   void dispose() {
@@ -40,7 +47,7 @@ class _HomeState extends State<Home> {
         title: Text("BLoC"),
         actions: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(right:16.0),
+            padding: const EdgeInsets.only(right: 16.0),
             child: StreamBuilder(
               stream: _boxBloc.scoreObservable,
               builder: (_, snapshot) {
@@ -53,15 +60,40 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      body: StreamBuilder(
-        stream: _boxBloc.boxObservable,
-        builder: (_, snapshot) {
-          if (snapshot.hasData) {
-            return snapshot.data;
-          } else {
-            return Container();
-          }
-        },
+      body: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          StreamBuilder(
+            stream: _boxBloc.timerObservable,
+            builder: (_, snapshot) {
+              if (snapshot.hasData) {
+                return LinearProgressIndicator(
+                  value: snapshot.data / _totalDuration,
+                  backgroundColor: Colors.red[50],
+                  valueColor: AlwaysStoppedAnimation(Colors.red),
+                );
+              } else {
+                return LinearProgressIndicator(
+                  backgroundColor: Colors.red[50],
+                  valueColor: AlwaysStoppedAnimation(Colors.red),
+                );
+              }
+            },
+          ),
+          Expanded(
+            child: StreamBuilder(
+              stream: _boxBloc.boxObservable,
+              builder: (_, snapshot) {
+                if (snapshot.hasData) {
+                  return snapshot.data;
+                } else {
+                  return Container();
+                }
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: StreamBuilder<Object>(
         stream: _boxBloc.gameObservable,
