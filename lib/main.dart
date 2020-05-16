@@ -25,7 +25,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  BoxBloc _boxBloc = BoxBloc(initialX: 0.0, initialY: 0.0);
+  BoxBloc _boxBloc = BoxBloc(x: 0.0, y: 0.0);
 
   @override
   void dispose() {

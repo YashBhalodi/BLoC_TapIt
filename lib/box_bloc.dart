@@ -5,15 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
 class BoxBloc {
-  double initialX = 0;
-  double initialY = 0;
+  double x = 0;
+  double y = 0;
   int score = 0;
   bool gameON = false;
   BehaviorSubject<Widget> _subjectBox;
   BehaviorSubject<bool> _subjectGame;
   BehaviorSubject<int> _subjectScore;
 
-  BoxBloc({this.initialX, this.initialY}) {
+  BoxBloc({this.x, this.y}) {
     _subjectBox = BehaviorSubject.seeded(_drawBox());
     _subjectGame = BehaviorSubject.seeded(false);
     _subjectScore = BehaviorSubject.seeded(0);
@@ -27,16 +27,10 @@ class BoxBloc {
 
   void gameToggle() async {
     if (this.gameON) {
-      gameON = false;
-      _subjectGame.sink.add(false);
+      _stopGame();
     } else {
-      gameON = true;
-      score = 0;
-      _subjectScore.sink.add(score);
-      _subjectGame.sink.add(true);
+      _startGame();
       while (gameON) {
-        initialY = (Random().nextDouble() * 2) - 1;
-        initialX = (Random().nextDouble() * 2) - 1;
         await Future.delayed(
           Duration(milliseconds: (Random().nextInt(10) + 3) * 100),
           () => _subjectBox.sink.add(_drawBox()),
@@ -45,18 +39,40 @@ class BoxBloc {
     }
   }
 
+  void _increaseScore() {
+    score++;
+    _subjectScore.sink.add(score);
+  }
+
+  void _resetScore() {
+    score = 0;
+    _subjectScore.sink.add(score);
+  }
+
+  void _stopGame() {
+    gameON = false;
+    _subjectGame.sink.add(false);
+  }
+
+  void _startGame() {
+    _resetScore();
+    gameON = true;
+    _subjectGame.sink.add(true);
+  }
+
   Widget _drawBox() {
+    y = (Random().nextDouble() * 2) - 1;
+    x = (Random().nextDouble() * 2) - 1;
     double _size = (Random().nextDouble() + 0.1) * 100;
     return Align(
-      alignment: Alignment(initialX, initialY),
+      alignment: Alignment(x, y),
       child: SizedBox(
         height: _size,
         width: _size,
         child: GestureDetector(
           onTap: () {
             if (gameON) {
-              score++;
-              _subjectScore.sink.add(score);
+              _increaseScore();
             }
           },
           child: Container(
