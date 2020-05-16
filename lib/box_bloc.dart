@@ -38,7 +38,7 @@ class BoxBloc {
         initialY = (Random().nextDouble() * 2) - 1;
         initialX = (Random().nextDouble() * 2) - 1;
         await Future.delayed(
-          Duration(milliseconds: (Random().nextInt(10) + 5) * 100),
+          Duration(milliseconds: (Random().nextInt(10) + 3) * 100),
           () => _subjectBox.sink.add(_drawBox()),
         );
       }
@@ -46,21 +46,29 @@ class BoxBloc {
   }
 
   Widget _drawBox() {
+    double _size = (Random().nextDouble() + 0.1) * 100;
     return Align(
       alignment: Alignment(initialX, initialY),
-      child: GestureDetector(
-        onTap: () {
-          if (gameON) {
-            score++;
-            _subjectScore.sink.add(score);
-          }
-        },
-        child: Container(
-          height: (Random().nextDouble() + 0.1) * 100,
-          decoration: ShapeDecoration(
-            shape: CircleBorder(),
-            color: Color.fromARGB(
-                255, Random().nextInt(256), Random().nextInt(256), Random().nextInt(256)),
+      child: SizedBox(
+        height: _size,
+        width: _size,
+        child: GestureDetector(
+          onTap: () {
+            if (gameON) {
+              score++;
+              _subjectScore.sink.add(score);
+            }
+          },
+          child: Container(
+            decoration: ShapeDecoration(
+              shape: CircleBorder(),
+              color: Color.fromARGB(
+                255,
+                Random().nextInt(256),
+                Random().nextInt(256),
+                Random().nextInt(256),
+              ),
+            ),
           ),
         ),
       ),

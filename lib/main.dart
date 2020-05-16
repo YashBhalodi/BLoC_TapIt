@@ -53,20 +53,15 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      body: Stack(
-        fit: StackFit.expand,
-        children: <Widget>[
-          StreamBuilder(
-            stream: _boxBloc.boxObservable,
-            builder: (_, snapshot) {
-              if (snapshot.hasData) {
-                return snapshot.data;
-              } else {
-                return Container();
-              }
-            },
-          ),
-        ],
+      body: StreamBuilder(
+        stream: _boxBloc.boxObservable,
+        builder: (_, snapshot) {
+          if (snapshot.hasData) {
+            return snapshot.data;
+          } else {
+            return Container();
+          }
+        },
       ),
       floatingActionButton: StreamBuilder<Object>(
         stream: _boxBloc.gameObservable,
