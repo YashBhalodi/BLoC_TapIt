@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:counterbloc/box_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -83,10 +85,13 @@ class _HomeState extends State<Home> {
           ),
           Expanded(
             child: StreamBuilder(
-              stream: _boxBloc.boxObservable,
+              stream: _boxBloc.positionObservable,
               builder: (_, snapshot) {
                 if (snapshot.hasData) {
-                  return snapshot.data;
+                  return GameTarget(
+                    alignment: snapshot.data,
+                    boxBloc: _boxBloc,
+                  );
                 } else {
                   return Container();
                 }
@@ -96,7 +101,7 @@ class _HomeState extends State<Home> {
         ],
       ),
       floatingActionButton: StreamBuilder<Object>(
-        stream: _boxBloc.gameObservable,
+        stream: _boxBloc.gameStateObservable,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return FloatingActionButton(
@@ -108,6 +113,51 @@ class _HomeState extends State<Home> {
           }
         },
       ),
+    );
+  }
+}
+
+class GameTarget extends StatelessWidget {
+  final BoxBloc boxBloc;
+  final Alignment alignment;
+
+  const GameTarget({Key key, this.boxBloc, this.alignment}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    double _size = (Random().nextDouble() + 0.1) * 100;
+    return Align(
+      alignment: alignment,
+      child: SizedBox(
+        height: _size,
+        width: _size,
+        child: GestureDetector(
+          onTap: () {
+            if (boxBloc.gameON) {
+              boxBloc.increaseScore();
+            }
+          },
+          child: Container(
+            decoration: ShapeDecoration(
+              shape: CircleBorder(
+                side: BorderSide(width: 2.0, color: ColorUtil.getRandomColor()),
+              ),
+              color: ColorUtil.getRandomColor(),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ColorUtil {
+  static Color getRandomColor() {
+    return Color.fromARGB(
+      255,
+      Random().nextInt(256),
+      Random().nextInt(256),
+      Random().nextInt(256),
     );
   }
 }

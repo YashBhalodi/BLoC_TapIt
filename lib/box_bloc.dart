@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:core';
 import 'dart:math';
-import 'package:quiver/async.dart';
 import 'package:flutter/material.dart';
+import 'package:quiver/async.dart';
 import 'package:rxdart/rxdart.dart';
 
 class BoxBloc {
@@ -12,21 +12,21 @@ class BoxBloc {
   int totalSeconds = 60;
   bool gameON = false;
   StreamSubscription _timer;
-  BehaviorSubject<Widget> _subjectBox;
+  BehaviorSubject<Alignment> _subjectPosition;
   BehaviorSubject<bool> _subjectGame;
   BehaviorSubject<int> _subjectScore;
   BehaviorSubject<int> _subjectTimer;
 
-  BoxBloc({this.x, this.y,this.totalSeconds}) {
-    _subjectBox = BehaviorSubject.seeded(_drawBox());
+  BoxBloc({this.x, this.y, this.totalSeconds}) {
+    _subjectPosition = BehaviorSubject.seeded(Alignment(x, y));
     _subjectGame = BehaviorSubject.seeded(false);
     _subjectScore = BehaviorSubject.seeded(0);
     _subjectTimer = BehaviorSubject.seeded(this.totalSeconds);
   }
 
-  Stream<Widget> get boxObservable => _subjectBox.stream;
+  Stream<Alignment> get positionObservable => _subjectPosition.stream;
 
-  Stream<bool> get gameObservable => _subjectGame.stream;
+  Stream<bool> get gameStateObservable => _subjectGame.stream;
 
   Stream<int> get scoreObservable => _subjectScore.stream;
 
@@ -40,13 +40,13 @@ class BoxBloc {
       while (gameON) {
         await Future.delayed(
           Duration(milliseconds: (Random().nextInt(10) + 3) * 100),
-          () => _subjectBox.sink.add(_drawBox()),
+          () => _subjectPosition.sink.add(_updatePosition()),
         );
       }
     }
   }
 
-  void _increaseScore() {
+  void increaseScore() {
     score++;
     _subjectScore.sink.add(score);
   }
@@ -69,52 +69,29 @@ class BoxBloc {
     _startTimer(Duration(seconds: totalSeconds));
   }
 
-  void _startTimer(Duration totalDuration){
-    _timer = CountdownTimer(totalDuration, Duration(seconds: 1)).listen((data){
-    })..onData((data){
-      _subjectTimer.sink.add(data.remaining.inSeconds);
-    })..onDone((){
-      _stopGame();
-    });
+  void _startTimer(Duration totalDuration) {
+    _timer = CountdownTimer(totalDuration, Duration(seconds: 1)).listen((data) {})
+      ..onData((data) {
+        _subjectTimer.sink.add(data.remaining.inSeconds);
+      })
+      ..onDone(() {
+        _stopGame();
+      });
   }
 
-  void _stopTimer(){
+  void _stopTimer() {
+    _subjectTimer.sink.add(totalSeconds);
     _timer.cancel();
   }
 
-  Widget _drawBox() {
+  Alignment _updatePosition() {
     y = (Random().nextDouble() * 2) - 1;
     x = (Random().nextDouble() * 2) - 1;
-    double _size = (Random().nextDouble() + 0.1) * 100;
-    return Align(
-      alignment: Alignment(x, y),
-      child: SizedBox(
-        height: _size,
-        width: _size,
-        child: GestureDetector(
-          onTap: () {
-            if (gameON) {
-              _increaseScore();
-            }
-          },
-          child: Container(
-            decoration: ShapeDecoration(
-              shape: CircleBorder(),
-              color: Color.fromARGB(
-                255,
-                Random().nextInt(256),
-                Random().nextInt(256),
-                Random().nextInt(256),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+    return Alignment(x, y);
   }
 
   void dispose() {
-    _subjectBox.close();
+    _subjectPosition.close();
     _subjectGame.close();
     _subjectScore.close();
     _subjectTimer.close();
